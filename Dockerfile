@@ -1,22 +1,14 @@
-FROM eclipse-temurin:21-jdk AS builder
-
+# Etapa 1: Build
+FROM maven:3.9.6-eclipse-temurin-21 AS builder
 WORKDIR /app
 
-# Clonează și construiește aplicația
-RUN apt-get update && apt-get install -y git && \
-    rm -rf ./target && \
-    git clone https://github.com/viamandi/msg_loopback.git . && \
-    ./mvnw clean package -DskipTests
+# Descarcă proiectul din Git (autenticare doar dacă e privat)
+RUN git clone https://github.com/viamandi/msg_loopback.git .
+RUN mvn clean package -DskipTests
 
+# Etapa 2: Runtime
 FROM eclipse-temurin:21-jre
-
 WORKDIR /app
-
-# Copiază JAR-ul construît
 COPY --from=builder /app/target/*.jar app.jar
 
-# Expune portul (schimbă dacă e necesar)
-EXPOSE 8080
-
-# Pornește aplicația
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
