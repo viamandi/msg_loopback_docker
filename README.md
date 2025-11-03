@@ -13,3 +13,7 @@ Run:
   - Precondition:
     - install docker
   - docker-compose -up
+
+Check DB:
+  - docker exec -it postgres psql -U appuser -d appdb
+  - SELECT * FROM vehicle_data;
